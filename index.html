@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stationery Shop & Cyber Cafe Manager</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+<body>
+<header>
+    <div class="header-top">
+        <div class="header-left">
+            <h1><i class="fas fa-store"></i>Stationery Shop & Cyber Cafe Manager</h1>
+            <div class="shop-status">
+                <i id="shop-status" class="fas fa-circle"></i>
+                <span id="status-text">OPEN</span>
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="header-info">
+                <div class="date-time">
+                    <div class="date">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span id="date-text">Friday, Jul 18, 2025</span>
+                    </div>
+                    <div class="time">
+                        <i class="fas fa-clock"></i>
+                        <span id="time-text">1:27:10 PM</span>
+                    </div>
+                </div>
+                <div class="user-section">
+                    <button id="notification-btn" class="notification-btn" aria-label="Notifications">
+                        <i class="fas fa-bell"></i>
+                        <span>Notifications</span>
+                        <span id="notification-count" class="notification-badge">0</span>
+                    </button>
+                    <button id="reset-store-btn" class="reset-store-btn" aria-label="Reset Store">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                    <button id="returns-btn" class="returns-btn" aria-label="Returns">
+                        <i class="fas fa-undo"></i>
+                        <span id="returns-count" class="returns-badge">0</span>
+                    </button>
+                    <button id="review-btn" class="review-btn" aria-label="Review Items">
+                        <i class="fas fa-eye"></i>
+                        <span id="review-count" class="review-badge">0</span>
+                    </button>
+                    <button id="user-btn" class="user-btn" aria-label="User Menu">
+                        <i class="fas fa-user"></i>
+                        <span id="user-name">Shopkeeper</span>
+                    </button>
+                    <button id="settings-btn" class="settings-btn" aria-label="Settings">
+                        <i class="fas fa-cog"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="header-bottom">
+        <div class="quick-stats">
+            <div class="stat-item">
+                <i class="fas fa-rupee-sign"></i>
+                <div class="stat-content">
+                    <span class="stat-label">Today's Sales</span>
+                    <span class="stat-value">Rs. <span id="today-sales">0.00</span></span>
+                </div>
+            </div>
+            <div class="stat-item">
+                <i class="fas fa-receipt"></i>
+                <div class="stat-content">
+                    <span class="stat-label">Transactions</span>
+                    <span class="stat-value" id="today-transactions">0</span>
+                </div>
+            </div>
+            <div class="stat-item alerts">
+                <i class="fas fa-exclamation-triangle"></i>
+                <div class="stat-content">
+                    <span class="stat-label">Low Stock</span>
+                    <span class="stat-value" id="low-stock-count">0</span>
+                </div>
+            </div>
+            <div class="stat-item">
+                <i class="fas fa-box"></i>
+                <div class="stat-content">
+                    <span class="stat-label">Total Products</span>
+                    <span class="stat-value" id="total-products">0</span>
+                </div>
+            </div>
+        </div>
+        <div class="quick-search">
+            <label for="quick-search" class="sr-only">Quick Search</label>
+            <input type="text" id="quick-search" placeholder="Quick search products...">
+            <button id="quick-search-btn" aria-label="Search"><i class="fas fa-search"></i></button>
+        </div>
+    </div>
+</header>
+
+<!-- Notification Dropdown -->
+<div id="notification-dropdown" class="notification-dropdown">
+    <div class="notification-header">
+        <h3>Notifications</h3>
+        <button id="clear-notifications">Clear All</button>
+    </div>
+    <div id="notification-list" class="notification-list">
+        <!-- Notifications will be populated here -->
+    </div>
+</div>
+
+<!-- User Dropdown -->
+<div id="user-dropdown" class="user-dropdown">
+    <div class="user-menu-header">
+        <i class="fas fa-user-circle"></i>
+        <div>
+            <h4 id="dropdown-user-name">Shopkeeper</h4>
+            <span class="user-role">Staff</span>
+        </div>
+    </div>
+    <div class="user-menu-items">
+        <button id="switch-user-btn"><i class="fas fa-user-friends"></i> Switch User</button>
+        <button id="owner-login-btn"><i class="fas fa-crown"></i> Owner Login</button>
+        <button id="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+    </div>
+</div>
+
+<main>
+    <!-- Product Management Section -->
+    <section>
+        <h2><i class="fas fa-plus-circle"></i> List New Product</h2>
+        <form id="add-product-form">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="product-name">Product Name:</label>
+                    <input type="text" id="product-name" required>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="single-barcode">Single Unit Barcode:</label>
+                    <input type="text" id="single-barcode" placeholder="Enter single unit barcode" required>
+                </div>
+                <div class="form-group">
+                    <label for="single-price">Single Unit Price (Rs.):</label>
+                    <input type="number" id="single-price" step="0.01" required>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="bulk-barcode">Bulk Pack Barcode:</label>
+                    <input type="text" id="bulk-barcode" placeholder="Enter bulk pack barcode" required>
+                </div>
+                <div class="form-group">
+                    <label for="bulk-price">Bulk Pack Price (Rs.):</label>
+                    <input type="number" id="bulk-price" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label for="bulk-quantity">Units per Bulk Pack:</label>
+                    <input type="number" id="bulk-quantity" min="1" required>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="initial-stock">No. of Single Units:</label>
+                    <input type="number" id="initial-stock" min="0" value="0">
+                </div>
+                <div class="form-group">
+                    <label for="initial-boxes">No. of Bulk Boxes:</label>
+                    <input type="number" id="initial-boxes" min="0" value="0">
+                </div>
+            </div>
+            <button type="submit" class="btn-primary">Add Product</button>
+        </form>
+        <h3>Recently Added Products</h3>
+        <div id="product-list"></div>
+    </section>
+
+    <!-- Stock Management Section -->
+    <section>
+        <h2><i class="fas fa-boxes"></i> Add Stock to Existing Products</h2>
+        <form id="add-stock-form" class="stock-form">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="stock-product-select">Select Product:</label>
+                    <select id="stock-product-select" required>
+                        <option value="">Select a product...</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="add-single-units">Add Single Units:</label>
+                    <input type="number" id="add-single-units" min="0" value="0">
+                </div>
+                <div class="form-group">
+                    <label for="add-bulk-boxes">Add Bulk Boxes:</label>
+                    <input type="number" id="add-bulk-boxes" min="0" value="0">
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn-success">Add Stock</button>
+                </div>
+            </div>
+        </form>
+        <div id="stock-update-info"></div>
+    </section>
+
+    <!-- POS Section -->
+    <section>
+        <h2><i class="fas fa-shopping-cart"></i> Point of Sale (POS)</h2>
+        <div class="pos-input-row">
+            <label for="barcode-input" class="sr-only">Barcode Input</label>
+            <input type="text" id="barcode-input" placeholder="Scan or type barcode">
+            <label for="pos-quantity-input" class="sr-only">Quantity</label>
+            <input type="number" id="pos-quantity-input" class="quantity-input" placeholder="Qty" min="1" value="1">
+            <button id="add-to-cart-btn" class="btn-primary">Add to Cart</button>
+        </div>
+        <div class="pos-buttons">
+            <button id="checkout-btn" class="btn-success">Checkout</button>
+            <button id="clear-cart-btn" class="btn-warning">Clear Cart</button>
+        </div>
+        <h3>Current Bill</h3>
+        <div id="cart-items"></div>
+        <div class="bill-total">Total: Rs. <span id="bill-total">0.00</span></div>
+    </section>
+
+    <!-- Inventory Section -->
+    <section>
+        <h2><i class="fas fa-warehouse"></i> Inventory Status</h2>
+        <div class="inventory-controls">
+            <label for="inventory-search" class="sr-only">Search Inventory</label>
+            <input type="text" id="inventory-search" placeholder="Search inventory...">
+            <button id="show-low-stock-btn" class="btn-warning">Show Low Stock Only</button>
+        </div>
+        <div id="inventory-list"></div>
+    </section>
+
+    <!-- Cash Counter Section -->
+    <section>
+        <h2><i class="fas fa-calculator"></i> Cash Counter</h2>
+        <div class="cash-display">
+            Total Cash: Rs. <span id="cash-total">0.00</span>
+        </div>
+        <div class="cash-counter-controls">
+            <button id="view-sales-btn" class="btn-info">View Sales History</button>
+            <button id="export-pdf-btn" class="btn-success">Export PDF Report</button>
+            <button id="payment-summary-btn" class="btn-info">Payment Summary Report</button>
+            <button id="reset-cash-btn" class="btn-danger">Reset Cash Counter</button>
+        </div>
+
+        <!-- Sales History Section -->
+        <div id="sales-history-section" class="sales-history-section" style="display: none;">
+            <h3>Sales History</h3>
+            <div class="date-filter">
+                <label for="sales-date-filter">Select Date:</label>
+                <input type="date" id="sales-date-filter">
+            </div>
+            <div id="sales-history"></div>
+        </div>
+    </section>
+
+    <!-- Special Import/Export Section -->
+    <section>
+        <h2><i class="fas fa-upload"></i> Export/Import Store Data</h2>
+        <div class="export-import-controls">
+            <button id="export-data-btn" class="btn-success">Export All Data</button>
+            <div class="import-file-section">
+                <label for="import-file" class="sr-only">Import File</label>
+                <input type="file" id="import-file" accept=".json" class="import-file-input">
+                <button id="import-data-btn" class="btn-info">Import Data</button>
+            </div>
+        </div>
+    </section>
+</main>
+
+<!-- Payment Mode Selection Modal -->
+<div id="payment-mode-modal" class="modal">
+    <div class="modal-content payment-mode-content">
+        <span class="close-payment-mode">&times;</span>
+        <h2><i class="fas fa-rupee-sign"></i> Select Payment Mode</h2>
+        <div class="payment-amount">
+            <h3>Total Amount: Rs. <span id="payment-amount">0.00</span></h3>
+        </div>
+        <div class="payment-options">
+            <button id="cash-payment" class="payment-option-btn">
+                <i class="fas fa-money-bill-wave"></i>
+                <span>Cash</span>
+            </button>
+            <button id="upi-payment" class="payment-option-btn">
+                <i class="fas fa-mobile-alt"></i>
+                <span>UPI</span>
+            </button>
+            <button id="card-payment" class="payment-option-btn">
+                <i class="fas fa-credit-card"></i>
+                <span>Card</span>
+            </button>
+        </div>
+        <button id="cancel-payment" class="btn-secondary">Cancel</button>
+    </div>
+</div>
+
+<!-- Payment Confirmation Modal -->
+<div id="payment-confirmation-modal" class="modal">
+    <div class="modal-content payment-confirmation-content">
+        <h2><i class="fas fa-check-circle"></i> Confirm Payment</h2>
+        <div class="payment-details">
+            <p><strong>Amount:</strong> Rs. <span id="confirm-amount">0.00</span></p>
+            <p><strong>Payment Mode:</strong> <span id="confirm-payment-mode">CASH</span></p>
+        </div>
+        <h3>Payment Received?</h3>
+        <div class="payment-confirmation-buttons">
+            <button id="payment-received" class="btn-success">
+                <i class="fas fa-check"></i> Yes, Received
+            </button>
+            <button id="payment-cancelled" class="btn-danger">
+                <i class="fas fa-times"></i> No, Cancel
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Returns & Replacements Modal -->
+<div id="returns-modal" class="modal">
+    <div class="modal-content returns-modal-content">
+        <span class="close-returns-modal">&times;</span>
+        <h2><i class="fas fa-undo"></i> Returns & Replacements</h2>
+
+        <div class="return-tabs">
+            <button class="tab-btn active" data-tab="return">Process Return</button>
+            <button class="tab-btn" data-tab="replacement">Process Replacement</button>
+        </div>
+
+        <div id="return-tab" class="tab-content active">
+            <form id="return-form" class="return-form">
+                <div class="form-group">
+                    <label for="return-barcode">Product Barcode (Single/Bulk):</label>
+                    <input type="text" id="return-barcode" required>
+                </div>
+                <div class="form-group">
+                    <label for="return-quantity">Quantity:</label>
+                    <input type="number" id="return-quantity" min="1" value="1" required>
+                </div>
+                <div class="form-group return-reason-group">
+                    <label for="return-reason">Return Reason:</label>
+                    <select id="return-reason" required>
+                        <option value="">Select Return Reason</option>
+                        <option value="defective">Defective Product</option>
+                        <option value="wrong-item">Wrong Item</option>
+                        <option value="customer-request">Customer Request</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group return-submit-group">
+                    <button type="submit" class="btn-warning">Initiate Return</button>
+                </div>
+            </form>
+            <div id="return-info"></div>
+        </div>
+
+        <div id="replacement-tab" class="tab-content">
+            <form id="replacement-form" class="replacement-form">
+                <div class="form-group">
+                    <label for="old-product-barcode">Old Product Barcode:</label>
+                    <input type="text" id="old-product-barcode" required>
+                </div>
+                <div class="form-group">
+                    <label for="new-product-barcode">New Product Barcode:</label>
+                    <input type="text" id="new-product-barcode" required>
+                </div>
+                <div class="form-group">
+                    <label for="replacement-quantity">Quantity:</label>
+                    <input type="number" id="replacement-quantity" min="1" value="1" required>
+                </div>
+                <div class="form-group replacement-submit-group">
+                    <button type="submit" class="btn-info">Initiate Replacement</button>
+                </div>
+            </form>
+            <div id="replacement-info"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Review Returned & Replaced Items Modal -->
+<div id="review-modal" class="modal">
+    <div class="modal-content review-modal-content">
+        <span class="close-review-modal">&times;</span>
+        <h2><i class="fas fa-eye"></i> Review Returned & Replaced Items</h2>
+
+        <div class="review-filters">
+            <button class="filter-btn active" data-filter="all">All Items</button>
+            <button class="filter-btn" data-filter="returns">Returns Only</button>
+            <button class="filter-btn" data-filter="replacements">Replacements Only</button>
+        </div>
+
+        <div id="review-items-list"></div>
+    </div>
+</div>
+
+<!-- All Products Modal -->
+<div id="all-products-modal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal">&times;</span>
+        <h2>All Products</h2>
+        <div class="modal-controls">
+            <label for="modal-search" class="sr-only">Search Products</label>
+            <input type="text" id="modal-search" placeholder="Search products...">
+            <label for="modal-sort" class="sr-only">Sort Products</label>
+            <select id="modal-sort">
+                <option value="">Sort by...</option>
+                <option value="name">Sort by Name</option>
+                <option value="stock">Sort by Stock</option>
+                <option value="recent">Recently Added</option>
+            </select>
+        </div>
+        <div id="all-products-list"></div>
+    </div>
+</div>
+
+<!-- Login Modal -->
+<div id="login-modal" class="modal">
+    <div class="modal-content login-modal-content">
+        <span class="close-login-modal">&times;</span>
+        <form id="login-form" class="login-form">
+            <h2><i class="fas fa-sign-in-alt"></i> Login</h2>
+            <div class="form-group">
+                <label for="login-username">Username:</label>
+                <input type="text" id="login-username" required>
+            </div>
+            <div class="form-group">
+                <label for="login-password">Password:</label>
+                <input type="password" id="login-password" required>
+            </div>
+            <div class="form-group">
+                <label for="login-user-type">User Type:</label>
+                <select id="login-user-type" required>
+                    <option value="shopkeeper">Shopkeeper</option>
+                    <option value="owner">Owner</option>
+                </select>
+            </div>
+            <button type="submit" class="btn-primary login-btn">Login</button>
+        </form>
+    </div>
+</div>
+
+<!-- Settings Modal -->
+<div id="settings-modal" class="modal">
+    <div class="modal-content settings-modal-content">
+        <span class="close-settings-modal">&times;</span>
+        <h2><i class="fas fa-cog"></i> Shop Settings</h2>
+
+        <div class="settings-tabs">
+            <button class="settings-tab-btn active" data-tab="shop">Shop Details</button>
+            <button class="settings-tab-btn" data-tab="preferences">Preferences</button>
+            <button class="settings-tab-btn" data-tab="system">System</button>
+        </div>
+
+        <div id="shop-settings-tab" class="settings-tab-content active">
+            <form id="shop-settings-form">
+                <div class="form-group">
+                    <label for="shop-name-setting">Shop Name:</label>
+                    <input type="text" id="shop-name-setting" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="shop-open-time">Opening Time:</label>
+                        <input type="time" id="shop-open-time" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="shop-close-time">Closing Time:</label>
+                        <input type="time" id="shop-close-time" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="low-stock-threshold">Low Stock Threshold:</label>
+                    <input type="number" id="low-stock-threshold" min="1" required>
+                </div>
+                <button type="submit" class="btn-primary">Save Shop Settings</button>
+            </form>
+        </div>
+
+        <div id="preferences-settings-tab" class="settings-tab-content">
+            <form id="preferences-settings-form">
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="auto-print-receipts"> Auto-print receipts
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="sound-notifications"> Sound notifications
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="auto-backup"> Auto-backup data daily
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label for="currency-symbol">Currency Symbol:</label>
+                    <select id="currency-symbol">
+                        <option value="Rs.">Rs. (Rupees)</option>
+                        <option value="$">$ (Dollar)</option>
+                        <option value="€">€ (Euro)</option>
+                        <option value="£">£ (Pound)</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-primary">Save Preferences</button>
+            </form>
+        </div>
+
+        <div id="system-settings-tab" class="settings-tab-content">
+            <div class="system-info">
+                <h3>System Information</h3>
+                <div class="info-item">
+                    <span class="info-label">Version:</span>
+                    <span class="info-value">2.0.1</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Last Backup:</span>
+                    <span class="info-value" id="last-backup-time">Never</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Total Products:</span>
+                    <span class="info-value" id="system-product-count">0</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Database Size:</span>
+                    <span class="info-value" id="database-size">0 KB</span>
+                </div>
+            </div>
+            <div class="system-actions">
+                <button id="clear-cache-btn" class="btn-warning">Clear Cache</button>
+                <button id="backup-now-btn" class="btn-info">Backup Now</button>
+                <button id="system-reset-btn" class="btn-danger">Factory Reset</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Reset Store Confirmation Modal -->
+<div id="reset-store-modal" class="modal">
+    <div class="modal-content reset-store-content">
+        <h2><i class="fas fa-exclamation-triangle"></i> Reset Store Data</h2>
+        <div class="reset-warning">
+            <p><strong>⚠️ WARNING:</strong> This will permanently delete ALL store data including:</p>
+            <ul>
+                <li>All products and inventory</li>
+                <li>Sales history and transactions</li>
+                <li>Cash counter records</li>
+                <li>Returns and replacements</li>
+            </ul>
+            <p><strong>This action cannot be undone!</strong></p>
+        </div>
+        <div class="reset-confirmation-buttons">
+            <button id="confirm-reset-store" class="btn-danger">Yes, Reset Store</button>
+            <button id="cancel-reset-store" class="btn-secondary">No, Cancel</button>
+        </div>
+    </div>
+</div>
+
+<!-- Reset Store Final Confirmation Modal -->
+<div id="reset-store-final-modal" class="modal">
+    <div class="modal-content reset-store-final-content">
+        <h2><i class="fas fa-exclamation-triangle"></i> Final Confirmation</h2>
+        <div class="final-warning">
+            <p><strong>⚠️ FINAL WARNING:</strong> This action cannot be undone!</p>
+            <p>Type <strong>"RESET STORE"</strong> to confirm:</p>
+            <label for="reset-store-confirmation" class="sr-only">Type RESET STORE to confirm</label>
+            <input type="text" id="reset-store-confirmation" placeholder="Type RESET STORE">
+        </div>
+        <div class="reset-final-buttons">
+            <button id="final-reset-store" class="btn-danger">Reset Store</button>
+            <button id="cancel-final-reset" class="btn-secondary">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<!-- Reset Cash Counter Modal -->
+<div id="reset-cash-modal" class="modal">
+    <div class="modal-content reset-cash-content">
+        <h2><i class="fas fa-exclamation-triangle"></i> Reset Cash Counter</h2>
+        <div class="reset-warning">
+            <p><strong>⚠️ WARNING:</strong> This will reset the cash counter to zero.</p>
+            <p>Only the owner can perform this action.</p>
+            <p>Type <strong>"RESET"</strong> to confirm:</p>
+            <label for="reset-cash-confirmation" class="sr-only">Type RESET to confirm</label>
+            <input type="text" id="reset-cash-confirmation" placeholder="Type RESET">
+        </div>
+        <div class="reset-confirmation-buttons">
+            <button id="confirm-reset-cash" class="btn-danger">Reset Cash Counter</button>
+            <button id="cancel-reset-cash" class="btn-secondary">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<!-- Payment Summary Modal -->
+<div id="payment-summary-modal" class="modal">
+    <div class="modal-content payment-summary-content">
+        <span class="close-payment-summary">&times;</span>
+        <h2><i class="fas fa-chart-bar"></i> Payment Summary Report</h2>
+        <div class="date-filter">
+            <label for="payment-summary-date">Select Date:</label>
+            <input type="date" id="payment-summary-date">
+        </div>
+        <div id="payment-summary-table"></div>
+    </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
